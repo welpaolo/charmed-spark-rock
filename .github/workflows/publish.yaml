@@ -82,7 +82,7 @@ jobs:
           mv charmed-spark/${{ steps.artifact.outputs.name }} .
           rmdir charmed-spark
           
-          REPOSITORY="ghcr.io/canonical/"
+          REPOSITORY="ghcr.io/welpaolo/"
           RISK=${{ needs.release_checks.outputs.risk }}
           TRACK=${{ needs.release_checks.outputs.track }}
           if [ ! -z "$RISK" ] && [ "${RISK}" != "no-risk" ]; then TAG=${TRACK}_${RISK}; else TAG=${TRACK}; fi
@@ -114,7 +114,7 @@ jobs:
       - name: Publish JupyterLab Image to Channel
         run: |
       
-          REPOSITORY="ghcr.io/canonical/"
+          REPOSITORY="ghcr.io/welpaolo/"
           RISK=${{ needs.release_checks.outputs.risk }}
           TRACK=${{ needs.release_checks.outputs.track }}
           if [ ! -z "$RISK" ] && [ "${RISK}" != "no-risk" ]; then TAG=${TRACK}_${RISK}; else TAG=${TRACK}; fi
