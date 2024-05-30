@@ -199,7 +199,7 @@ parts:
       bin/spark-client.service-account-registry: opt/spark-client/python/bin/spark-client.service-account-registry
       bin/spark-client.spark-shell: opt/spark-client/python/bin/spark-client.spark-shell
       bin/spark-client.spark-submit: opt/spark-client/python/bin/spark-client.spark-submit
-      bin/getGpuResources.sh: opt/spark/getGpuResources.sh
+      bin/getGpuResources.sh: opt/getGpuResources.sh
     stage:
       - etc/spark8t/conf/
       - opt/pebble/sparkd.sh
@@ -210,7 +210,7 @@ parts:
       - opt/spark-client/python/bin/spark-client.service-account-registry
       - opt/spark-client/python/bin/spark-client.spark-shell
       - opt/spark-client/python/bin/spark-client.spark-submit
-      - opt/spark/getGpuResources.sh
+      - opt/getGpuResources.sh
 
   user-setup:
     plugin: nil
