@@ -258,5 +258,6 @@ parts:
       chmod a+x opt/decom.sh
       mv etc/spark/conf/log4j2.properties.template etc/spark/conf/log4j2.properties
       chmod a+x etc/spark/conf/log4j2.properties
+      cp etc/spark/conf/log4j2.properties /etc/spark8t/conf/
 
 
