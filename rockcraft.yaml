@@ -25,7 +25,7 @@ environment:
   SPARK_HOME: /opt/spark
   SPARK_CONFS: /etc/spark8t/conf
   SPARK_CONF_DIR: /etc/spark8t/conf
-  JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+  JAVA_HOME: /usr/lib/jvm/java-8-openjdk-amd64
   PYTHONPATH: /opt/spark/python:/opt/spark8t/python/dist:/usr/lib/python3.10/site-packages
   PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/spark:/opt/spark/bin:/opt/spark/python/bin:/opt/spark-client/python/bin
   HOME: /var/lib/spark
@@ -58,8 +58,8 @@ services:
 parts:
   spark:
     plugin: dump
-    source: https://github.com/canonical/central-uploader/releases/download/spark-3.4.2-ubuntu4/spark-3.4.2-ubuntu4-20240514115906-bin-k8s.tgz
-    source-checksum: sha512/dbb20cd6c94762a6c28ec177f176bdfc4d84f03eb0f2616ed156f268776ab421b6edd6b0118986c39d2b813c8a047f9b550491cf3fdd813e1cb1f1bef55f91df
+    source: https://github.com/canonical/central-uploader/releases/download/spark-3.4.2-ubuntu1/spark-3.4.2-ubuntu1-20231214143421-bin-k8s.tgz
+    source-checksum: sha512/a111897557921c4dd61daa67fb6979e0a231d4c5f56a0007f26663cb69ab42a12beb83e46edd8961baa7e7b62f031801c1b82e2e612afa1c6ebf8fc208e45ffd
     overlay-script: |
       sed -i 's/http:\/\/deb.\(.*\)/https:\/\/deb.\1/g' /etc/apt/sources.list
       apt-get update
@@ -222,7 +222,7 @@ parts:
       - krb5-user
       - libnss3
       - procps
-      - openjdk-17-jre-headless
+      - openjdk-8-jre-headless
 
     override-prime: |
       # Please refer to https://discourse.ubuntu.com/t/unifying-user-identity-across-snaps-and-rocks/36469
