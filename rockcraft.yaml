@@ -256,8 +256,8 @@ parts:
       chmod -R 770 var/lib/spark
       mv opt/spark/decom.sh opt/decom.sh
       chmod a+x opt/decom.sh
-      mv etc/spark/conf/log4j2.properties.template etc/spark/conf/log4j2.properties
-      chmod a+x etc/spark/conf/log4j2.properties
-      cp etc/spark/conf/log4j2.properties etc/spark8t/conf/
-      chmod 770 etc/spark8t/conf/log4j2.properties
-      ls
+      # mv etc/spark/conf/log4j2.properties.template etc/spark/conf/log4j2.properties
+      # chmod a+x etc/spark/conf/log4j2.properties
+      # cp etc/spark/conf/log4j2.properties etc/spark8t/conf/
+      # chmod 770 etc/spark8t/conf/log4j2.properties
+      # ls

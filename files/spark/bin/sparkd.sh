@@ -1,13 +1,13 @@
 #!/bin/bash
 
-function finish {
-  if [ $? -ne 0 ]
-  then
-    kill -1 1
-    sleep 1
-  fi
-}
-trap finish EXIT
+# function finish {
+#   if [ $? -ne 0 ]
+#   then
+#     kill -1 1
+#     sleep 1
+#   fi
+# }
+# trap finish EXIT
 
 
 FLAVOUR=$1
