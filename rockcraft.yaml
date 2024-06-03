@@ -260,4 +260,4 @@ parts:
       chmod a+x etc/spark/conf/log4j2.properties
       cp etc/spark/conf/log4j2.properties etc/spark8t/conf/
       chmod 770 etc/spark8t/conf/log4j2.properties
-
+      ls
