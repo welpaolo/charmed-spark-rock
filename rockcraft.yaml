@@ -259,7 +259,5 @@ parts:
       mv etc/spark/conf/log4j2.properties.template etc/spark/conf/log4j2.properties
       chmod a+x etc/spark/conf/log4j2.properties
       cp etc/spark/conf/log4j2.properties etc/spark8t/conf/
-      chmod a+x etc/spark8t/conf/log4j2.properties
-      chmod -R 750 etc/spark etc/spark8t
-
+      chmod o+x etc/spark8t/conf/log4j2.properties
 
