@@ -171,7 +171,7 @@ parts:
 
       NVIDIA_VISIBLE_DEVICES=all
       NVIDIA_DRIVER_CAPABILITIES=compute,utility
-      
+
       NV_CUDA_LIB_VERSION=12.5.0-1
       NV_NVTX_VERSION=12.5.39-1
       NV_LIBNPP_VERSION=12.3.0.116-1
