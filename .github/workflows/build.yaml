@@ -38,8 +38,8 @@ jobs:
       - name: Build image
         run: sudo make build
 
-      - name: Build image (Jupyter)
-        run: sudo make build FLAVOUR=jupyter
+      # - name: Build image (Jupyter)
+      #   run: sudo make build FLAVOUR=jupyter
 
       - name: Get Artifact Name
         id: artifact
