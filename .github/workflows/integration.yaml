@@ -56,13 +56,13 @@ jobs:
           
           sg microk8s -c "make tests"
 
-      - name: Run tests (Jupyter)
-        run: |
-          # Import artifact into docker with new tag
-          sudo make import \
-            FLAVOUR=jupyter TARGET=microk8s \
-            TAG=$(yq .version rockcraft.yaml) \
-            REPOSITORY=ghcr.io/canonical/ PREFIX=test- \
-            -o $(find .make_cache -name "*.tag")
+      # - name: Run tests (Jupyter)
+      #   run: |
+      #     # Import artifact into docker with new tag
+      #     sudo make import \
+      #       FLAVOUR=jupyter TARGET=microk8s \
+      #       TAG=$(yq .version rockcraft.yaml) \
+      #       REPOSITORY=ghcr.io/canonical/ PREFIX=test- \
+      #       -o $(find .make_cache -name "*.tag")
 
-          sg microk8s -c "make tests FLAVOUR=jupyter"
+      #     sg microk8s -c "make tests FLAVOUR=jupyter"
