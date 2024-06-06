@@ -28,7 +28,5 @@
 # spark.{driver/executor}.resource.gpu.discoveryScript config.
 #
 # Example output: {"name": "gpu", "addresses":["0","1","2","3","4","5","6","7"]}
-echo "BEFORE getGpusResources"
 ADDRS=`nvidia-smi --query-gpu=index --format=csv,noheader | sed -e ':a' -e 'N' -e'$!ba' -e 's/\n/","/g'`
 echo {\"name\": \"gpu\", \"addresses\":[\"$ADDRS\"]}
-echo "AFTER getGpusResources"
