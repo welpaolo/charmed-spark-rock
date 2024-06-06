@@ -310,6 +310,7 @@ parts:
       mv etc/spark/conf/log4j2.properties.template etc/spark/conf/log4j2.properties
       chmod a+x etc/spark/conf/log4j2.properties
       cp etc/spark/conf/log4j2.properties etc/spark8t/conf/
+      mkdir -p opt/spark/conf
       cp etc/spark/conf/log4j2.properties opt/spark/conf/
       chmod 777 etc/spark8t/conf/log4j2.properties
       ls
