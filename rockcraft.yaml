@@ -24,10 +24,9 @@ run_user: _daemon_
 environment:
   SPARK_HOME: /opt/spark
   SPARK_CONFS: /etc/spark8t/conf
-  SPARK_CONF_DIR: /etc/spark8t/conf
   JAVA_HOME: /usr/lib/jvm/java-1.8.0-openjdk-amd64
   PYTHONPATH: /opt/spark/python:/opt/spark8t/python/dist:/usr/lib/python3.10/site-packages
-  PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/spark:/opt/spark/bin:/opt/spark/python/bin:/opt/spark-client/python/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin
+  PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/spark:/opt/spark/bin:/opt/spark/python/bin:/opt/spark-client/python/bin:/usr/local/nvidia/bin:/usr/local/cuda/bin:/usr/lib/jvm/java-1.8.0-openjdk-amd64/jre/bin:/usr/lib/jvm/java-1.8.0-openjdk-amd64/bin
   HOME: /var/lib/spark
   SPARK_USER_DATA: /var/lib/spark
   SPARK_LOG_DIR: /var/log/spark
@@ -308,13 +307,4 @@ parts:
       chmod -R 770 var/lib/spark
       mv opt/spark/decom.sh opt/decom.sh
       chmod a+x opt/decom.sh
-      mv etc/spark/conf/log4j2.properties.template etc/spark/conf/log4j2.properties
-      chmod a+x etc/spark/conf/log4j2.properties
-      cp etc/spark/conf/log4j2.properties etc/spark8t/conf/
-      mkdir -p opt/spark/conf
-      cp etc/spark/conf/log4j2.properties opt/spark/conf/
-      chmod 777 etc/spark8t/conf/log4j2.properties
-      ls
-      chown -R ${SPARK_GID}:${SPARK_UID} opt/spark
-      chmod -R 750 opt/spark
       ls
