@@ -308,3 +308,13 @@ parts:
       mv opt/spark/decom.sh opt/decom.sh
       chmod a+x opt/decom.sh
       ls
+      chown -R ${SPARK_GID}:${SPARK_UID} opt/
+      chmod -R 750 opt/
+      chown -R ${SPARK_GID}:${SPARK_UID} var/
+      chmod -R 750 var/
+      mkdir -p home
+      chown -R ${SPARK_GID}:${SPARK_UID} home/
+      chmod -R 750 home/
+      chown -R ${SPARK_GID}:${SPARK_UID} tmp/
+      chmod -R 750 tmp/
+      ls
