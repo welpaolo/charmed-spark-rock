@@ -39,7 +39,7 @@ services:
     override: replace
     startup: enabled
     on-success: shutdown
-    on-failure: ignore
+    on-failure: shutdown
   history-server:
     command: "/bin/bash /opt/pebble/history-server.sh"
     summary: "This is the Spark History Server service"
