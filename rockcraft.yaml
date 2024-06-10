@@ -147,58 +147,57 @@ parts:
       done
       echo "All dependecies downloaded!"
 
-      NVARCH=x86_64
-      NV_CUDA_COMPAT_PACKAGE=cuda-compat-12-5
-      NV_CUDA_CUDART_VERSION=12.5.39-1
+      # NVARCH=x86_64
+      # NV_CUDA_COMPAT_PACKAGE=cuda-compat-12-5
+      # NV_CUDA_CUDART_VERSION=12.5.39-1
 
 
 
-      apt-get update && apt-get install -y --no-install-recommends \
-      gnupg2 curl ca-certificates && \
-      curl -fsSLO https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/${NVARCH}/cuda-keyring_1.1-1_all.deb && \
-      dpkg -i cuda-keyring_1.1-1_all.deb && \
-      apt-get purge --autoremove -y curl \
-      && rm -rf /var/lib/apt/lists/*
+      # apt-get update && apt-get install -y --no-install-recommends \
+      # gnupg2 curl ca-certificates && \
+      # curl -fsSLO https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/${NVARCH}/cuda-keyring_1.1-1_all.deb && \
+      # dpkg -i cuda-keyring_1.1-1_all.deb && \
+      # apt-get purge --autoremove -y curl \
+      # && rm -rf /var/lib/apt/lists/*
 
 
-      apt-get update && apt-get install -y --no-install-recommends \
-      cuda-cudart-12-5=${NV_CUDA_CUDART_VERSION} \
-      ${NV_CUDA_COMPAT_PACKAGE} \
-      && rm -rf /var/lib/apt/lists/*
+      # apt-get update && apt-get install -y --no-install-recommends \
+      # cuda-cudart-12-5=${NV_CUDA_CUDART_VERSION} \
+      # ${NV_CUDA_COMPAT_PACKAGE} \
+      # && rm -rf /var/lib/apt/lists/*
 
-      echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
-      && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+      # echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf \
+      # && echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
 
-      NVIDIA_VISIBLE_DEVICES=all
-      NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      # NVIDIA_VISIBLE_DEVICES=all
+      # NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
-      NV_CUDA_LIB_VERSION=12.5.0-1
-      NV_NVTX_VERSION=12.5.39-1
-      NV_LIBNPP_VERSION=12.3.0.116-1
-      NV_LIBNPP_PACKAGE=libnpp-12-5=${NV_LIBNPP_VERSION}
-      NV_LIBCUSPARSE_VERSION=12.4.1.24-1
-      NV_LIBCUBLAS_PACKAGE_NAME=libcublas-12-5
-      NV_LIBCUBLAS_VERSION=12.5.2.13-1
-      NV_LIBCUBLAS_PACKAGE=${NV_LIBCUBLAS_PACKAGE_NAME}=${NV_LIBCUBLAS_VERSION}
-      NV_LIBNCCL_PACKAGE_NAME=libnccl2
-      NV_LIBNCCL_PACKAGE_VERSION=2.21.5-1
-      NCCL_VERSION=2.21.5-1
-      NV_LIBNCCL_PACKAGE=${NV_LIBNCCL_PACKAGE_NAME}=${NV_LIBNCCL_PACKAGE_VERSION}+cuda12.5
+      # NV_CUDA_LIB_VERSION=12.5.0-1
+      # NV_NVTX_VERSION=12.5.39-1
+      # NV_LIBNPP_VERSION=12.3.0.116-1
+      # NV_LIBNPP_PACKAGE=libnpp-12-5=${NV_LIBNPP_VERSION}
+      # NV_LIBCUSPARSE_VERSION=12.4.1.24-1
+      # NV_LIBCUBLAS_PACKAGE_NAME=libcublas-12-5
+      # NV_LIBCUBLAS_VERSION=12.5.2.13-1
+      # NV_LIBCUBLAS_PACKAGE=${NV_LIBCUBLAS_PACKAGE_NAME}=${NV_LIBCUBLAS_VERSION}
+      # NV_LIBNCCL_PACKAGE_NAME=libnccl2
+      # NV_LIBNCCL_PACKAGE_VERSION=2.21.5-1
+      # NCCL_VERSION=2.21.5-1
+      # NV_LIBNCCL_PACKAGE=${NV_LIBNCCL_PACKAGE_NAME}=${NV_LIBNCCL_PACKAGE_VERSION}+cuda12.5
 
-      apt-get update && apt-get install -y --no-install-recommends \
-      cuda-libraries-12-5=${NV_CUDA_LIB_VERSION} \
-      ${NV_LIBNPP_PACKAGE} \
-      cuda-nvtx-12-5=${NV_NVTX_VERSION} \
-      libcusparse-12-5=${NV_LIBCUSPARSE_VERSION} \
-      ${NV_LIBCUBLAS_PACKAGE} \
-      ${NV_LIBNCCL_PACKAGE} \
-      && rm -rf /var/lib/apt/lists/*
+      # apt-get update && apt-get install -y --no-install-recommends \
+      # cuda-libraries-12-5=${NV_CUDA_LIB_VERSION} \
+      # ${NV_LIBNPP_PACKAGE} \
+      # cuda-nvtx-12-5=${NV_NVTX_VERSION} \
+      # libcusparse-12-5=${NV_LIBCUSPARSE_VERSION} \
+      # ${NV_LIBCUBLAS_PACKAGE} \
+      # ${NV_LIBNCCL_PACKAGE} \
+      # && rm -rf /var/lib/apt/lists/*
 
-      apt-mark hold ${NV_LIBCUBLAS_PACKAGE_NAME} ${NV_LIBNCCL_PACKAGE_NAME}
+      # apt-mark hold ${NV_LIBCUBLAS_PACKAGE_NAME} ${NV_LIBNCCL_PACKAGE_NAME}
       echo "Done"
     stage:
       - opt/spark/jars
-      - usr/local/nvidia
 
   spark8t:
     plugin: nil
