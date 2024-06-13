@@ -83,7 +83,7 @@ $(_ROCK_OCI): rockcraft.yaml
 	rockcraft pack
 
 $(_TMP_OCI_TAG).tag: $(_ROCK_OCI)
-	skopeo --insecure-policy \
+	rockcraft.skopeo --insecure-policy \
           copy \
           oci-archive:"$(_ROCK_OCI)" \
           docker-daemon:"$(_TMP_OCI_NAME):$(TAG)"
