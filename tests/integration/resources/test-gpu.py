@@ -20,7 +20,7 @@ def runMicroBenchmark(spark, appName, query, retryTimes) -> float:
 
 spark = SparkSession.builder.appName("GPUBenchmark").getOrCreate()
 
-dataRoot = os.getenv("DATA_ROOT", "/data")
+dataRoot = "s3a://data"
 spark.read.parquet(dataRoot + "/tpcds/customer").createOrReplaceTempView("customer")
 spark.read.parquet(dataRoot + "/tpcds/store_sales").createOrReplaceTempView("store_sales")
 spark.read.parquet(dataRoot + "/tpcds/catalog_sales").createOrReplaceTempView("catalog_sales")
