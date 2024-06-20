@@ -8,11 +8,13 @@ sudo microk8s kubectl rollout status deployment/hostpath-provisioner -n kube-sys
 # Wait for gpu operator components to be ready
 while ! sudo microk8s.kubectl logs -n gpu-operator-resources -l app=nvidia-operator-validator | grep "all validations are successful"
 do
+    echo "--------------------------------------------------------------------------------------------------------------------"
     echo "waiting for validations"
     sudo microk8s.kubectl get pods -A
 #   sudo microk8s.kubectl logs -n gpu-operator-resources -l app=nvidia-operator-validator
     sudo microk8s.kubectl describe pod -n gpu-operator-resources nvidia-operator-validator
     sleep 60
+    echo "--------------------------------------------------------------------------------------------------------------------"
 done
 
 # Setup config
