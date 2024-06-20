@@ -16,6 +16,7 @@ do
     sudo microk8s.kubectl describe pod -n gpu-operator-resources nvidia-operator-validator
     sleep 60
     df -h
+
     echo "--------------------------------------------------------------------------------------------------------------------"
 done
 
