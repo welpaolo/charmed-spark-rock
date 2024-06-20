@@ -44,7 +44,7 @@ jobs:
         USER: "ubuntu"
 
     - name: Setup microk8s
-      run: /bin/bash ./tests/integration/config-microk8s-gpu.sh
+      run: sudo -E /bin/bash ./tests/integration/config-microk8s-gpu.sh
       env:
         MICROK8S_ADDONS: "storage dns rbac gpu"
 
