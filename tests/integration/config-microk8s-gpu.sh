@@ -11,7 +11,7 @@ do
     echo "--------------------------------------------------------------------------------------------------------------------"
     echo "waiting for validations"
     sudo microk8s.kubectl get pods -A
-#   sudo microk8s.kubectl logs -n gpu-operator-resources -l app=nvidia-operator-validator
+    sudo microk8s.kubectl logs -n kube-system -l k8s-app=hostpath-provisioner
     sudo microk8s.kubectl describe pod -n gpu-operator-resources nvidia-operator-validator
     sleep 60
     echo "--------------------------------------------------------------------------------------------------------------------"
