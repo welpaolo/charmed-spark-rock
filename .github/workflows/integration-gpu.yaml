@@ -36,12 +36,17 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Install microk8s
+    # - name: Install microk8s
+    #   run: |
+    #     /bin/bash ./tests/integration/setup-microk8s.sh "1.28/stable"
+    #     newgrp microk8s
+    #   env:
+    #     USER: "ubuntu"
+    - name: Setup environment
       run: |
-        /bin/bash ./tests/integration/setup-microk8s.sh "1.28/stable"
-        newgrp microk8s
+        sudo -E bash ./tests/integration/setup_environment.sh
       env:
-        USER: "ubuntu"
+        MICROK8S_CHANNEL: 1.28/stable
 
     - name: Setup microk8s
       run: sudo -E /bin/bash ./tests/integration/config-microk8s-gpu.sh
