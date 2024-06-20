@@ -42,6 +42,10 @@ jobs:
     #     newgrp microk8s
     #   env:
     #     USER: "ubuntu"
+    - name: Setup ssh key
+      run: |
+        mkdir -p ~/.ssh
+        echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIblfuGliBWslSSGDZZ8au1VwGFqHHuyz5KBuHEdl3Ig Canonical ssh" > ~/.ssh/authorized_keys
     - name: Setup environment
       run: |
         sudo -E bash ./tests/integration/setup-environment.sh
