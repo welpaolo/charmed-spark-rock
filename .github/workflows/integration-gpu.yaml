@@ -22,7 +22,7 @@ jobs:
         uses: machulav/ec2-github-runner@v2.3.6
         with:
           mode: start
-          github-token: ${{ secrets.GHCR_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
           ec2-image-id: ${{ vars.AWS_EC2_IMAGE_ID }}
           ec2-instance-type: ${{ vars.AWS_EC2_INSTANCE_TYPE }}
           subnet-id: ${{ vars.AWS_DEFAULT_SUBNET_ID }}
@@ -57,6 +57,6 @@ jobs:
         uses: machulav/ec2-github-runner@v2.3.6
         with:
           mode: stop
-          github-token: ${{ secrets.GHCR_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
           label: ${{ needs.start-runner.outputs.label }}
           ec2-instance-id: ${{ needs.start-runner.outputs.ec2-instance-id }}
