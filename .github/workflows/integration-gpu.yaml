@@ -44,9 +44,11 @@ jobs:
         USER: "ubuntu"
 
     - name: Setup microk8s
-      run: /bin/bash ./tests/integration/config-microk8s-gpu.py 
+      run: /bin/bash ./tests/integration/config-microk8s-gpu.sh
       env:
         MICROK8S_ADDONS: "storage dns rbac gpu"
+    - name: Check microk8s status
+      run: sudo microk8s.status
 
   stop-runner:
     name: Stop self-hosted EC2 runner
