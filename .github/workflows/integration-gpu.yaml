@@ -44,7 +44,7 @@ jobs:
     #     USER: "ubuntu"
     - name: Setup environment
       run: |
-        sudo -E bash ./tests/integration/setup_environment.sh
+        sudo -E bash ./tests/integration/setup-environment.sh
       env:
         MICROK8S_CHANNEL: 1.28/stable
 
