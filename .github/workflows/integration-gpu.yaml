@@ -36,8 +36,15 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Test
-      run: echo "RUN!"
+    - name: Install microk8s
+      run: |
+        /bin/bash ./tests/integration/setup-microk8s.sh "1.28/stable"
+        newgrp microk8s
+
+    - name: Setup microk8s
+      run: /bin/bash ./tests/integration/config-microk8s-gpu.py 
+      env:
+        MICROK8S_ADDONS: "storage dns rbac gpu"
 
   stop-runner:
     name: Stop self-hosted EC2 runner
