@@ -12,7 +12,7 @@ do
     sudo microk8s.kubectl get pods -A
 #   sudo microk8s.kubectl logs -n gpu-operator-resources -l app=nvidia-operator-validator
     sudo microk8s.kubectl describe pod -n gpu-operator-resources nvidia-operator-validator
-    sleep 30
+    sleep 60
 done
 
 # Setup config
