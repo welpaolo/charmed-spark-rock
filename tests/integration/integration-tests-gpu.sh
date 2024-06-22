@@ -131,7 +131,8 @@ setup_admin_test_pod() {
   kubectl create ns $NAMESPACE
 
   echo "Creating admin test-pod"
-
+  pwd
+  ls
   # Create a pod with admin service account
   yq ea '.spec.containers[0].env[0].name = "KUBECONFIG" | .spec.containers[0].env[0].value = "/var/lib/spark/.kube/config" | .metadata.name = "testpod-admin"' \
     ./tests/integration/resources/testpod.yaml | \
