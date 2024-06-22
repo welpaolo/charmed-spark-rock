@@ -56,10 +56,13 @@ jobs:
     - name: Setup microk8s
       run: sudo -E /bin/bash ./tests/integration/config-microk8s-gpu.sh
       env:
-        MICROK8S_ADDONS: "storage dns rbac gpu"
+        MICROK8S_ADDONS: "storage dns rbac gpu minio"
 
     - name: Check microk8s status
-      run: sudo microk8s.status
+      run: |
+        sudo microk8s.status
+        /bin/bash ./tests/integration/integration-tests-gpu.sh
+        echo "End of the test :)"
 
   stop-runner:
     name: Stop self-hosted EC2 runner

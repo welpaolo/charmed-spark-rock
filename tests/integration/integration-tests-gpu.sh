@@ -155,41 +155,6 @@ teardown_test_pod() {
   kubectl delete namespace $NAMESPACE
 }
 
-run_example_job_in_pod() {
-  SPARK_EXAMPLES_JAR_NAME="spark-examples_2.12-$(get_spark_version).jar"
-
-  PREVIOUS_JOB=$(kubectl -n $NAMESPACE get pods --sort-by=.metadata.creationTimestamp | grep driver | tail -n 1 | cut -d' ' -f1)
-  NAMESPACE=$1
-  USERNAME=$2
-
-  kubectl -n $NAMESPACE exec testpod -- env UU="$USERNAME" NN="$NAMESPACE" JJ="$SPARK_EXAMPLES_JAR_NAME" IM="$(spark_image)" \
-                  /bin/bash -c 'spark-client.spark-submit \
-                  --username $UU --namespace $NN \
-                  --conf spark.kubernetes.driver.request.cores=100m \
-                  --conf spark.kubernetes.executor.request.cores=100m \
-                  --conf spark.kubernetes.container.image=$IM \
-                  --class org.apache.spark.examples.SparkPi \
-                  local:///opt/spark/examples/jars/$JJ 1000'
-
-  # kubectl --kubeconfig=${KUBE_CONFIG} get pods
-  DRIVER_PODS=$(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver )
-  DRIVER_JOB=$(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver | tail -n 1 | cut -d' ' -f1)
-
-  if [[ "${DRIVER_JOB}" == "${PREVIOUS_JOB}" ]]
-  then
-    echo "ERROR: Sample job has not run!"
-    exit 1
-  fi
-
-  # Check job output
-  # Sample output
-  # "Pi is roughly 3.13956232343"
-  pi=$(kubectl logs $(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver | tail -n 1 | cut -d' ' -f1)  -n ${NAMESPACE} | grep 'Pi is roughly' | rev | cut -d' ' -f1 | rev | cut -c 1-3)
-  echo -e "Spark Pi Job Output: \n ${pi}"
-
-  validate_pi_value $pi
-}
-
 get_s3_access_key(){
   # Prints out S3 Access Key by reading it from K8s secret
   kubectl get secret -n minio-operator microk8s-user-1 -o jsonpath='{.data.CONSOLE_ACCESS_KEY}' | base64 -d
@@ -236,21 +201,19 @@ copy_file_to_s3_bucket(){
   echo "Copied file ${FILE_PATH} to S3 bucket ${BUCKET_NAME}"
 }
 
-test_iceberg_example_in_pod(){
+
+run_test_gpu_example_in_pod(){
   # Test Iceberg integration in Charmed Spark Rock
 
   # First create S3 bucket named 'spark'
   create_s3_bucket spark
 
   # Copy 'test-iceberg.py' script to 'spark' bucket
-  copy_file_to_s3_bucket spark ./tests/integration/resources/test-iceberg.py
+  copy_file_to_s3_bucket spark ./tests/integration/resources/test-gpu-simple.py
 
   NAMESPACE="tests"
   USERNAME="spark"
-
-  # Number of rows that are to be inserted during the test.
-  NUM_ROWS_TO_INSERT="4"
-
+#  IMAGE="test-image"
   # Number of driver pods that exist in the namespace already.
   PREVIOUS_DRIVER_PODS_COUNT=$(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver | wc -l)
 
@@ -259,32 +222,31 @@ test_iceberg_example_in_pod(){
       env \
         UU="$USERNAME" \
         NN="$NAMESPACE" \
-        IM="$(spark_image)" \
-        NUM_ROWS="$NUM_ROWS_TO_INSERT" \
         ACCESS_KEY="$(get_s3_access_key)" \
         SECRET_KEY="$(get_s3_secret_key)" \
         S3_ENDPOINT="$(get_s3_endpoint)" \
       /bin/bash -c '\
         spark-client.spark-submit \
-        --username $UU --namespace $NN \
-        --conf spark.kubernetes.driver.request.cores=100m \
-        --conf spark.kubernetes.executor.request.cores=100m \
-        --conf spark.kubernetes.container.image=$IM \
-        --conf spark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider \
-        --conf spark.hadoop.fs.s3a.connection.ssl.enabled=false \
-        --conf spark.hadoop.fs.s3a.path.style.access=true \
-        --conf spark.hadoop.fs.s3a.endpoint=$S3_ENDPOINT \
-        --conf spark.hadoop.fs.s3a.access.key=$ACCESS_KEY \
-        --conf spark.hadoop.fs.s3a.secret.key=$SECRET_KEY \
-        --conf spark.jars.ivy=/tmp \
-        --conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
-        --conf spark.sql.catalog.spark_catalog=org.apache.iceberg.spark.SparkSessionCatalog \
-        --conf spark.sql.catalog.spark_catalog.type=hive \
-        --conf spark.sql.catalog.local=org.apache.iceberg.spark.SparkCatalog \
-        --conf spark.sql.catalog.local.type=hadoop \
-        --conf spark.sql.catalog.local.warehouse=s3a://spark/warehouse \
-        --conf spark.sql.defaultCatalog=local \
-        s3a://spark/test-iceberg.py -n $NUM_ROWS'
+        --username $UU \
+        --namespace $NN \
+        --conf spark.executor.instances=1 \
+        --conf spark.executor.resource.gpu.amount=1 \
+        --conf spark.executor.memory=4G \
+        --conf spark.executor.cores=1 \
+        --conf spark.task.cpus=1 \
+        --conf spark.task.resource.gpu.amount=1 \
+        --conf spark.rapids.memory.pinnedPool.size=1G \
+        --conf spark.executor.memoryOverhead=1G \
+        --conf spark.sql.files.maxPartitionBytes=512m \
+        --conf spark.sql.shuffle.partitions=10 \
+        --conf spark.plugins=com.nvidia.spark.SQLPlugin \
+        --conf spark.executor.resource.gpu.discoveryScript=/opt/getGpusResources.sh \
+        --conf spark.executor.resource.gpu.vendor=nvidia.com \
+        --conf spark.kubernetes.container.image=ghcr.io/welpaolo/charmed-spark@sha256:d8273bd904bb5f74234bc0756d520115b5668e2ac4f2b65a677bfb1c27e882da \
+        --driver-memory 2G \
+        --conf spark.kubernetes.executor.podTemplateFile=gpu_executor_template.yaml \
+        --conf spark.kubernetes.executor.deleteOnTermination=false \
+          s3a://spark/test-gpu-simple.py'
 
   # Delete 'spark' bucket
   delete_s3_bucket spark
@@ -302,280 +264,26 @@ test_iceberg_example_in_pod(){
   # Find the ID of the driver pod that ran the job.
   # tail -n 1       => Filter out the last line
   # cut -d' ' -f1   => Split by spaces and pick the first part
-  DRIVER_POD_ID=$(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep test-iceberg-.*-driver | tail -n 1 | cut -d' ' -f1)
+  DRIVER_POD_ID=$(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver | tail -n 1 | cut -d' ' -f1)
 
   # Filter out the output log line
-  OUTPUT_LOG_LINE=$(kubectl logs ${DRIVER_POD_ID} -n ${NAMESPACE} | grep 'Number of rows inserted:' )
+  OUTPUT_LOG_LINE=$(kubectl logs ${DRIVER_POD_ID} -n ${NAMESPACE} | grep 'GpuFilter' )
 
   # Fetch out the number of rows inserted
   # rev             => Reverse the string
   # cut -d' ' -f1   => Split by spaces and pick the first part
   # rev             => Reverse the string back
-  NUM_ROWS_INSERTED=$(echo $OUTPUT_LOG_LINE | rev | cut -d' ' -f1 | rev)
+  NUM_ROWS=$(wc -l  $OUTPUT_LOG_LINE)
 
-  if [ "${NUM_ROWS_INSERTED}" != "${NUM_ROWS_TO_INSERT}" ]; then
-      echo "ERROR: ${NUM_ROWS_TO_INSERT} were supposed to be inserted. Found ${NUM_ROWS_INSERTED} rows. Aborting with exit code 1."
+  if [ "${NUM_ROWS}" == 0 ]; then
+      echo "ERROR: No GPU enable workflow found. Aborting with exit code 1."
       exit 1
   fi
 
 }
 
-run_example_job_in_pod_with_pod_templates() {
-  SPARK_EXAMPLES_JAR_NAME="spark-examples_2.12-$(get_spark_version).jar"
-
-  PREVIOUS_JOB=$(kubectl -n $NAMESPACE get pods --sort-by=.metadata.creationTimestamp | grep driver | tail -n 1 | cut -d' ' -f1)
-
-  NAMESPACE=$1
-  USERNAME=$2
-  kubectl -n $NAMESPACE exec testpod -- env UU="$USERNAME" NN="$NAMESPACE" JJ="$SPARK_EXAMPLES_JAR_NAME" IM="$(spark_image)" \
-                  /bin/bash -c 'spark-client.spark-submit \
-                  --username $UU --namespace $NN \
-                  --conf spark.kubernetes.driver.request.cores=100m \
-                  --conf spark.kubernetes.executor.request.cores=100m \
-                  --conf spark.kubernetes.container.image=$IM \
-                  --conf spark.kubernetes.driver.podTemplateFile=/etc/spark/conf/podTemplate.yaml \
-                  --conf spark.kubernetes.executor.podTemplateFile=/etc/spark/conf/podTemplate.yaml \
-                  --class org.apache.spark.examples.SparkPi \
-                  local:///opt/spark/examples/jars/$JJ 100'
-
-  # kubectl --kubeconfig=${KUBE_CONFIG} get pods
-  DRIVER_PODS=$(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver )
-  DRIVER_JOB=$(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver | tail -n 1 | cut -d' ' -f1)
-  echo "DRIVER JOB: $DRIVER_JOB"
-
-  if [[ "${DRIVER_JOB}" == "${PREVIOUS_JOB}" ]]
-  then
-    echo "ERROR: Sample job has not run!"
-    exit 1
-  fi
-  DRIVER_JOB_LABEL=$(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} -lproduct=charmed-spark | grep driver | tail -n 1 | cut -d' ' -f1)
-  echo "DRIVER JOB_LABEL: $DRIVER_JOB_LABEL"
-  if [[ "${DRIVER_JOB}" != "${DRIVER_JOB_LABEL}" ]]
-  then
-    echo "ERROR: Label not present... Error in the application of the template!"
-    exit 1
-  fi
-
-  # Check job output
-  # Sample output
-  # "Pi is roughly 3.13956232343"
-  pi=$(kubectl logs $(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver | tail -n 1 | cut -d' ' -f1)  -n ${NAMESPACE} | grep 'Pi is roughly' | rev | cut -d' ' -f1 | rev | cut -c 1-3)
-  echo -e "Spark Pi Job Output: \n ${pi}"
-
-  validate_pi_value $pi
-}
-
-
-run_example_job_in_pod_with_metrics() {
-  SPARK_EXAMPLES_JAR_NAME="spark-examples_2.12-$(get_spark_version).jar"
-  LOG_FILE="/tmp/server.log"
-  SERVER_PORT=9091
-  PREVIOUS_JOB=$(kubectl -n $NAMESPACE get pods --sort-by=.metadata.creationTimestamp | grep driver | tail -n 1 | cut -d' ' -f1)
-  # start simple http server
-  python3 tests/integration/resources/test_web_server.py $SERVER_PORT > $LOG_FILE &
-  HTTP_SERVER_PID=$!
-  # get ip address
-  IP_ADDRESS=$(hostname -I | cut -d ' ' -f 1)
-  echo "IP: $IP_ADDRESS"
-  NAMESPACE=$1
-  USERNAME=$2
-  kubectl -n $NAMESPACE exec testpod -- env PORT="$SERVER_PORT" IP="$IP_ADDRESS" UU="$USERNAME" NN="$NAMESPACE" JJ="$SPARK_EXAMPLES_JAR_NAME" IM="$(spark_image)" \
-                  /bin/bash -c 'spark-client.spark-submit \
-                  --username $UU --namespace $NN \
-                  --conf spark.kubernetes.driver.request.cores=100m \
-                  --conf spark.kubernetes.executor.request.cores=100m \
-                  --conf spark.kubernetes.container.image=$IM \
-                  --conf spark.metrics.conf.*.sink.prometheus.pushgateway-address="$IP:$PORT" \
-                  --conf spark.metrics.conf.*.sink.prometheus.class=org.apache.spark.banzaicloud.metrics.sink.PrometheusSink \
-                  --class org.apache.spark.examples.SparkPi \
-                  local:///opt/spark/examples/jars/$JJ 1000'
-
-  # kubectl --kubeconfig=${KUBE_CONFIG} get pods
-  DRIVER_PODS=$(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver )
-  DRIVER_JOB=$(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver | tail -n 1 | cut -d' ' -f1)
-
-  if [[ "${DRIVER_JOB}" == "${PREVIOUS_JOB}" ]]
-  then
-    echo "ERROR: Sample job has not run!"
-    exit 1
-  fi
-
-  # Check job output
-  # Sample output
-  # "Pi is roughly 3.13956232343"
-  pi=$(kubectl logs $(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver | tail -n 1 | cut -d' ' -f1)  -n ${NAMESPACE} | grep 'Pi is roughly' | rev | cut -d' ' -f1 | rev | cut -c 1-3)
-  echo -e "Spark Pi Job Output: \n ${pi}"
-
-  validate_pi_value $pi
-  # check that metrics are sent and stop the http server
-  echo "Number of POST done: $(wc -l $LOG_FILE)"
-  # kill http server
-  kill $HTTP_SERVER_PID
-  validate_metrics $LOG_FILE
-}
-
-
-run_example_job_with_error_in_pod() {
-  SPARK_EXAMPLES_JAR_NAME="spark-examples_2.12-$(get_spark_version).jar"
-
-  PREVIOUS_JOB=$(kubectl -n $NAMESPACE get pods --sort-by=.metadata.creationTimestamp | grep driver | tail -n 1 | cut -d' ' -f1)
-  NAMESPACE=$1
-  USERNAME=$2
-
-  kubectl -n $NAMESPACE exec testpod -- env UU="$USERNAME" NN="$NAMESPACE" JJ="$SPARK_EXAMPLES_JAR_NAME" IM="$(spark_image)" \
-                  /bin/bash -c 'spark-client.spark-submit \
-                  --username $UU --namespace $NN \
-                  --conf spark.kubernetes.driver.request.cores=100m \
-                  --conf spark.kubernetes.executor.request.cores=100m \
-                  --conf spark.kubernetes.container.image=$IM \
-                  --class org.apache.spark.examples.SparkPi \
-                  local:///opt/spark/examples/jars/$JJ -1'
-
-  # kubectl --kubeconfig=${KUBE_CONFIG} get pods
-  DRIVER_PODS=$(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver )
-  DRIVER_JOB=$(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver | tail -n 1 | cut -d' ' -f1)
-
-  if [[ "${DRIVER_JOB}" == "${PREVIOUS_JOB}" ]]
-  then
-    echo "ERROR: Sample job has not run!"
-    exit 1
-  fi
-
-  # Check job output
-  res=$(kubectl logs $(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver | tail -n 1 | cut -d' ' -f1) -n ${NAMESPACE} | grep 'Exception in thread' | wc -l)
-  echo -e "Number of errors: \n ${res}"
-  if [ "${res}" != "1" ]; then
-      echo "ERROR: Error is not captured."
-      exit 1
-  fi
-  status=$(kubectl get pod $(kubectl get pods --sort-by=.metadata.creationTimestamp -n ${NAMESPACE} | grep driver | tail -n 1 | cut -d' ' -f1) -n ${NAMESPACE} | tail -1 | cut -d " " -f 9)
-  if [ "${status}" = "Completed" ]; then
-      echo "ERROR: Status should not be set to Completed."
-      exit 1
-  fi
-  if [ "${status}" = "Error" ]; then
-      echo "Status is correctly set to ERROR!"
-  fi
-
-}
-
-test_example_job_in_pod_with_errors() {
-  run_example_job_with_error_in_pod $NAMESPACE spark
-}
-
-
-test_example_job_in_pod_with_templates() {
-  run_example_job_in_pod_with_pod_templates $NAMESPACE spark
-}
-
-
-test_example_job_in_pod() {
-  run_example_job_in_pod $NAMESPACE spark
-}
-
-test_example_job_in_pod_with_metrics() {
-  run_example_job_in_pod_with_metrics $NAMESPACE spark
-}
-
-
-
-run_spark_shell_in_pod() {
-  echo "run_spark_shell_in_pod ${1} ${2}"
-
-  NAMESPACE=$1
-  USERNAME=$2
-
-  SPARK_SHELL_COMMANDS=$(cat ./tests/integration/resources/test-spark-shell.scala)
-
-  # Check job output
-  # Sample output
-  # "Pi is roughly 3.13956232343"
-
-  echo -e "$(kubectl -n $NAMESPACE exec testpod -- env UU="$USERNAME" NN="$NAMESPACE" CMDS="$SPARK_SHELL_COMMANDS" IM="$(spark_image)" /bin/bash -c 'echo "$CMDS" | spark-client.spark-shell --username $UU --namespace $NN --conf spark.kubernetes.container.image=$IM')" > spark-shell.out
-
-  pi=$(cat spark-shell.out  | grep "^Pi is roughly" | rev | cut -d' ' -f1 | rev | cut -c 1-3)
-  echo -e "Spark-shell Pi Job Output: \n ${pi}"
-  rm spark-shell.out
-  validate_pi_value $pi
-}
-
-test_spark_shell_in_pod() {
-  run_spark_shell_in_pod $NAMESPACE spark
-}
-
-run_spark_sql_in_pod() {
-  echo "run_spark_sql_in_pod ${1} ${2}"
-
-  NAMESPACE=$1
-  USERNAME=$2
-
-  SPARK_SQL_COMMANDS=$(cat ./tests/integration/resources/test-spark-sql.sql)
-  create_s3_bucket test
-
-  echo -e "$(kubectl -n $NAMESPACE exec testpod -- \
-    env \
-      UU="$USERNAME" \
-      NN="$NAMESPACE" \
-      CMDS="$SPARK_SQL_COMMANDS" \
-      IM=$(spark_image) \
-      ACCESS_KEY=$(get_s3_access_key) \
-      SECRET_KEY=$(get_s3_secret_key) \
-      S3_ENDPOINT=$(get_s3_endpoint) \
-    /bin/bash -c 'echo "$CMDS" | spark-client.spark-sql \
-      --username $UU \
-      --namespace $NN \
-      --conf spark.kubernetes.container.image=$IM \
-      --conf spark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider \
-      --conf spark.hadoop.fs.s3a.connection.ssl.enabled=false \
-      --conf spark.hadoop.fs.s3a.path.style.access=true \
-      --conf spark.hadoop.fs.s3a.endpoint=$S3_ENDPOINT \
-      --conf spark.hadoop.fs.s3a.access.key=$ACCESS_KEY \
-      --conf spark.hadoop.fs.s3a.secret.key=$SECRET_KEY \
-      --conf spark.driver.extraJavaOptions='-Dderby.system.home=/tmp/derby' \
-      --conf spark.sql.warehouse.dir=s3a://test/warehouse')" > spark-sql.out
-
-  # derby.system.home=/tmp/derby is needed because 
-  # kubectl exec runs commands with `/` as working directory
-  # and by default derby.system.home has value `.`, the current working directory
-  # (for which _daemon_ user has no permission on)
-
-  num_rows_inserted=$(cat spark-sql.out  | grep "^Inserted Rows:" | rev | cut -d' ' -f1 | rev )
-  echo -e "${num_rows_inserted} rows were inserted."
-  rm spark-sql.out
-  delete_s3_bucket test
-  if [ "${num_rows_inserted}" != "3" ]; then
-      echo "ERROR: Testing spark-sql failed. ${num_rows_inserted} out of 3 rows were inserted. Aborting with exit code 1."
-      exit 1
-  fi
-}
-
-test_spark_sql_in_pod() {
-  run_spark_sql_in_pod tests spark
-}
-
-run_pyspark_in_pod() {
-  echo "run_pyspark_in_pod ${1} ${2}"
-
-  NAMESPACE=$1
-  USERNAME=$2
-
-  PYSPARK_COMMANDS=$(cat ./tests/integration/resources/test-pyspark.py)
-
-  # Check job output
-  # Sample output
-  # "Pi is roughly 3.13956232343"
-
-  echo -e "$(kubectl -n $NAMESPACE exec testpod -- env UU="$USERNAME" NN="$NAMESPACE" CMDS="$PYSPARK_COMMANDS" IM="$(spark_image)" /bin/bash -c 'echo "$CMDS" | spark-client.pyspark --username $UU --namespace $NN --conf spark.kubernetes.container.image=$IM')" > pyspark.out
-
-  cat pyspark.out
-  pi=$(cat pyspark.out  | grep "Pi is roughly" | tail -n 1 | rev | cut -d' ' -f1 | rev | cut -c 1-3)
-  echo -e "Pyspark Pi Job Output: \n ${pi}"
-  rm pyspark.out
-  validate_pi_value $pi
-}
-
-test_pyspark_in_pod() {
-  run_pyspark_in_pod $NAMESPACE spark
+test_test_gpu_example_in_pod() {
+  run_test_gpu_example_in_pod $NAMESPACE spark
 }
 
 cleanup_user_failure_in_pod() {
@@ -591,52 +299,10 @@ echo -e "##################################"
 setup_admin_test_pod
 
 echo -e "##################################"
-echo -e "RUN EXAMPLE JOB"
-echo -e "##################################"
-
-(setup_user_context && test_example_job_in_pod && cleanup_user_success) || cleanup_user_failure_in_pod
-
-echo -e "##################################"
-echo -e "RUN SPARK SHELL IN POD"
-echo -e "##################################"
-
-(setup_user_context && test_spark_shell_in_pod && cleanup_user_success) || cleanup_user_failure_in_pod
-
-echo -e "##################################"
-echo -e "RUN PYSPARK IN POD"
-echo -e "##################################"
-
-(setup_user_context && test_pyspark_in_pod && cleanup_user_success) || cleanup_user_failure_in_pod
-
-echo -e "##################################"
-echo -e "RUN SPARK SQL IN POD"
-echo -e "##################################"
-
-(setup_user_context && test_spark_sql_in_pod && cleanup_user_success) || cleanup_user_failure_in_pod
-
-echo -e "##################################"
-echo -e "RUN EXAMPLE JOB WITH POD TEMPLATE"
-echo -e "##################################"
-
-(setup_user_context && test_example_job_in_pod_with_templates && cleanup_user_success) || cleanup_user_failure_in_pod
-
-echo -e "########################################"
-echo -e "RUN EXAMPLE JOB WITH PROMETHEUS METRICS"
-echo -e "########################################"
-
-(setup_user_context && test_example_job_in_pod_with_metrics && cleanup_user_success) || cleanup_user_failure_in_pod
-
-echo -e "########################################"
-echo -e "RUN EXAMPLE JOB WITH ERRORS"
-echo -e "########################################"
-
-(setup_user_context && test_example_job_in_pod_with_errors && cleanup_user_success) || cleanup_user_failure_in_pod
-
-echo -e "##################################"
 echo -e "RUN EXAMPLE THAT USES ICEBERG LIBRARIES"
 echo -e "##################################"
 
-(setup_user_context && test_iceberg_example_in_pod && cleanup_user_success) || cleanup_user_failure_in_pod
+(setup_user_context && test_test_gpu_example_in_pod && cleanup_user_success) || cleanup_user_failure_in_pod
 
 echo -e "##################################"
 echo -e "TEARDOWN TEST POD"
