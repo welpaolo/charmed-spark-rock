@@ -65,12 +65,17 @@ jobs:
         ls /home/
         sudo snap install yq
         sudo snap alias microk8s.kubectl kubectl
+        echo "h1"
         mkdir -p ~/.kube
         sudo chown -f -R ubuntu ~/.kube
+        echo "h2"
         mkdir -p /home/ubuntu/.kube
         sudo chown -f -R ubuntu home/ubuntu/.kube
+        echo "h3"
         sudo microk8s config | tee ~/.kube/config
+        echo "h4"
         sudo microk8s config | tee /home/ubuntu/.kube/config
+        echo "h5"
         /bin/bash ./tests/integration/integration-tests-gpu.sh
         echo "End of the test :)"
 
