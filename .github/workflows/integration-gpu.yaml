@@ -63,6 +63,10 @@ jobs:
         sudo microk8s.status
         sudo snap install yq
         sudo snap alias microk8s.kubectl kubectl
+        mkdir -p ~/.kube
+        sudo chown -f -R ${USER} ~/.kube
+        sudo microk8s config | tee ~/.kube/config
+        sudo microk8s config | tee /home/ubuntu/.kube/config
         /bin/bash ./tests/integration/integration-tests-gpu.sh
         echo "End of the test :)"
 
