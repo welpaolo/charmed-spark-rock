@@ -61,6 +61,7 @@ jobs:
     - name: Check microk8s status
       run: |
         sudo microk8s.status
+        echo "here"
         sudo snap install yq
         sudo snap alias microk8s.kubectl kubectl
         mkdir -p ~/.kube
