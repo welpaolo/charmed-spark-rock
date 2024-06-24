@@ -81,6 +81,7 @@ jobs:
         echo "End of the test :)"
       env:
         KUBECONFIG: "/home/ubuntu/.kube/config"
+        USER: "ubuntu"
 
   stop-runner:
     name: Stop self-hosted EC2 runner
