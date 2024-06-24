@@ -77,7 +77,7 @@ jobs:
         echo "h4"
         sudo microk8s config | tee /home/ubuntu/.kube/config
         echo "h5"
-        sleep 3600
+        # sleep 3600
         /bin/bash ./tests/integration/integration-tests-gpu.sh
         echo "End of the test :)"
       env:
