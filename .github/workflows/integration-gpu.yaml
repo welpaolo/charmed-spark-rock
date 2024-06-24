@@ -71,7 +71,7 @@ jobs:
         echo "h2"
         mkdir -p /home/ubuntu/.kube
         echo "h2.1"
-        sudo chown -f -R ubuntu home/ubuntu/.kube
+        sudo chown -f -R ubuntu /home/ubuntu/.kube
         echo "h3"
         sudo microk8s config | tee ~/.kube/config
         echo "h4"
