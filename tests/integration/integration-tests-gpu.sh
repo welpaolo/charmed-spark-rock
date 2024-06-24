@@ -133,6 +133,10 @@ setup_admin_test_pod() {
   echo "Creating admin test-pod"
   pwd
   ls
+  ls ./tests/
+  ls ./tests/integration/
+  ls ./tests/integration/resources/
+  echo "END of debug"
   # Create a pod with admin service account
   yq ea '.spec.containers[0].env[0].name = "KUBECONFIG" | .spec.containers[0].env[0].value = "/var/lib/spark/.kube/config" | .metadata.name = "testpod-admin"' \
     ./tests/integration/resources/testpod.yaml | \
