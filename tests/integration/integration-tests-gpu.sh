@@ -52,7 +52,7 @@ setup_user() {
                 /bin/bash -c 'spark-client.service-account-registry create --username $UU --namespace $NN'
 
   # Create the pod with the Spark service account
-  cat ./tests/integration/resources/testpod.yaml |yq ea ".spec.serviceAccountName = \"${USERNAME}\" | .spec.containers[0].image="ghcr.io/welpaolo/charmed-spark@sha256:d8273bd904bb5f74234bc0756d520115b5668e2ac4f2b65a677bfb1c27e882da"" \
+  cat ./tests/integration/resources/testpod.yaml | yq ea ".spec.serviceAccountName = \"${USERNAME}\" | .spec.containers[0].image="ghcr.io/welpaolo/charmed-spark@sha256:d8273bd904bb5f74234bc0756d520115b5668e2ac4f2b65a677bfb1c27e882da"" \
     kubectl -n tests apply -f -
 
   wait_for_pod testpod $NAMESPACE
@@ -136,9 +136,10 @@ setup_admin_test_pod() {
   ls ./tests/integration/
   ls ./tests/integration/resources/
   echo "END of debug"
-  cat ./tests/integration/resources/testpod.yaml
+  # cat ./tests/integration/resources/testpod.yaml
   echo "pippo"
-
+  
+  cat ./tests/integration/resources/testpod.yaml | yq ea '.spec.containers[0].env[0].name = "KUBECONFIG" | .spec.containers[0].env[0].value = "/var/lib/spark/.kube/config" | .metadata.name = "testpod-admin" | .spec.containers[0].image="ghcr.io/welpaolo/charmed-spark@sha256:d8273bd904bb5f74234bc0756d520115b5668e2ac4f2b65a677bfb1c27e882da"' 
   # cat ./tests/integration/resources/testpod.yaml | yq ea '.spec.containers[0].env[0].name = "KUBECONFIG" | .spec.containers[0].env[0].value = "/var/lib/spark/.kube/config" | .metadata.name = "testpod-admin"' 
   # yq ea '.spec.containers[0].env[0].name = "KUBECONFIG" | .spec.containers[0].env[0].value = "/var/lib/spark/.kube/config" | .metadata.name = "testpod-admin"' \
     # ./tests/integration/resources/testpod.yaml
@@ -300,7 +301,7 @@ cleanup_user_failure_in_pod() {
   cleanup_user_failure
 }
 
-set +x
+set -x
 
 echo -e "##################################"
 echo -e "SETUP TEST POD"
@@ -324,4 +325,4 @@ echo -e "##################################"
 echo -e "END OF THE TEST"
 echo -e "##################################"
 
-set -x
+set +x
