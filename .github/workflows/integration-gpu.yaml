@@ -79,6 +79,8 @@ jobs:
         echo "h5"
         /bin/bash ./tests/integration/integration-tests-gpu.sh
         echo "End of the test :)"
+      env:
+        KUBECONFIG: "/home/ubuntu/.kube/config"
 
   stop-runner:
     name: Stop self-hosted EC2 runner
