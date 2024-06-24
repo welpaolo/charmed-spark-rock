@@ -117,6 +117,7 @@ wait_for_pod() {
     elif [[ "${i}" -le "5" ]]
     then
         echo "Waiting for the pod to come online..."
+        kubectl get pods -A 
         sleep $SLEEP_TIME
     else
         echo "testpod did not come up. Test Failed!"
@@ -124,6 +125,7 @@ wait_for_pod() {
     fi
     SLEEP_TIME=$(expr $SLEEP_TIME \* 2);
   done
+  kubectl get pods -A
 }
 
 setup_admin_test_pod() {
