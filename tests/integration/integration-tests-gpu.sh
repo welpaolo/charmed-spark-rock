@@ -45,6 +45,7 @@ validate_metrics() {
 setup_user() {
   echo "setup_user() ${1} ${2}"
 
+
   USERNAME=$1
   NAMESPACE=$2
 
