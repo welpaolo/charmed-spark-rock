@@ -291,7 +291,7 @@ run_test_gpu_example_in_pod(){
   # rev             => Reverse the string
   # cut -d' ' -f1   => Split by spaces and pick the first part
   # rev             => Reverse the string back
-  NUM_ROWS=$(cat $OUTPUT_LOG_LINE | wc -l)
+  NUM_ROWS=$(echo $OUTPUT_LOG_LINE | wc -l)
   echo "number of rows: $NUM_ROWS"
   if [ "${NUM_ROWS}" == 0 ]; then
       echo "ERROR: No GPU enable workflow found. Aborting with exit code 1."
