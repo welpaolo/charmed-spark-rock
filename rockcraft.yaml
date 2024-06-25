@@ -146,7 +146,6 @@ parts:
         [ $ACTUAL_SHA != $EXPECTED_SHA ] && echo "ERROR"  && exit 1
       done
       echo "All dependecies downloaded!"
-      echo "Done"
     stage:
       - opt/spark/jars
 
@@ -226,8 +225,6 @@ parts:
       - procps
       - openjdk-8-jre
       - openjdk-8-jdk
-      - strace
-
     override-prime: |
       # Please refer to https://discourse.ubuntu.com/t/unifying-user-identity-across-snaps-and-rocks/36469
       # for more information about shared user.
@@ -260,14 +257,5 @@ parts:
       chmod -R 770 var/lib/spark
       mv opt/spark/decom.sh opt/decom.sh
       chmod a+x opt/decom.sh
-      ls
       chown -R ${SPARK_GID}:${SPARK_UID} opt/
       chmod -R 750 opt/
-      chown -R ${SPARK_GID}:${SPARK_UID} var/
-      chmod -R 750 var/
-      mkdir -p home
-      chown -R ${SPARK_GID}:${SPARK_UID} home/
-      chmod -R 750 home/
-      chown -R ${SPARK_GID}:${SPARK_UID} tmp/
-      chmod -R 750 tmp/
-      ls
