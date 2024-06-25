@@ -239,6 +239,14 @@ run_test_gpu_example_in_pod(){
         spark-client.spark-submit \
         --username $UU \
         --namespace $NN \
+        --conf spark.kubernetes.driver.request.cores=100m \
+        --conf spark.kubernetes.executor.request.cores=100m \
+        --conf spark.hadoop.fs.s3a.aws.credentials.provider=org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider \
+        --conf spark.hadoop.fs.s3a.connection.ssl.enabled=false \
+        --conf spark.hadoop.fs.s3a.path.style.access=true \
+        --conf spark.hadoop.fs.s3a.endpoint=$S3_ENDPOINT \
+        --conf spark.hadoop.fs.s3a.access.key=$ACCESS_KEY \
+        --conf spark.hadoop.fs.s3a.secret.key=$SECRET_KEY \
         --conf spark.executor.instances=1 \
         --conf spark.executor.resource.gpu.amount=1 \
         --conf spark.executor.memory=4G \
