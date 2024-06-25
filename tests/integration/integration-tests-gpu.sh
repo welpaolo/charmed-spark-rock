@@ -26,22 +26,6 @@ spark_image(){
 }
 
 
-validate_pi_value() {
-  pi=$1
-
-  if [ "${pi}" != "3.1" ]; then
-      echo "ERROR: Computed Value of pi is $pi, Expected Value: 3.1. Aborting with exit code 1."
-      exit 1
-  fi
-}
-
-validate_metrics() {
-  log=$1
-  if [ $(grep -Ri "spark" $log | wc -l) -lt 2 ]; then
-      exit 1
-  fi
-}
-
 setup_user() {
   echo "setup_user() ${1} ${2}"
 
@@ -51,12 +35,7 @@ setup_user() {
 
   kubectl -n $NAMESPACE exec testpod-admin -- env UU="$USERNAME" NN="$NAMESPACE" \
                 /bin/bash -c 'spark-client.service-account-registry create --username $UU --namespace $NN'
-  sleep 5
-  echo "List service accounts: "
-  kubectl get sa -A
-  echo "Mod apply - "
-  cat ./tests/integration/resources/testpod.yaml | yq ea '.spec.serviceAccountName = '\"${USERNAME}\"' | .spec.containers[0].image="ghcr.io/welpaolo/charmed-spark@sha256:d8273bd904bb5f74234bc0756d520115b5668e2ac4f2b65a677bfb1c27e882da"' 
-  echo "End"
+
   # Create the pod with the Spark service account
   cat ./tests/integration/resources/testpod.yaml | yq ea '.spec.serviceAccountName = '\"${USERNAME}\"' | .spec.containers[0].image="ghcr.io/welpaolo/charmed-spark@sha256:d8273bd904bb5f74234bc0756d520115b5668e2ac4f2b65a677bfb1c27e882da"' | \
     kubectl -n tests apply -f -
@@ -213,7 +192,7 @@ copy_file_to_s3_bucket(){
 
 
 run_test_gpu_example_in_pod(){
-  # Test Iceberg integration in Charmed Spark Rock
+  # Test Spark-rapids integration in Charmed Spark Rock
 
   # First create S3 bucket named 'spark'
   create_s3_bucket spark
@@ -287,10 +266,7 @@ run_test_gpu_example_in_pod(){
   # Filter out the output log line
   OUTPUT_LOG_LINE=$(kubectl logs ${DRIVER_POD_ID} -n ${NAMESPACE} | grep 'GpuFilter' )
   echo "output log line: $OUTPUT_LOG_LINE"
-  # Fetch out the number of rows inserted
-  # rev             => Reverse the string
-  # cut -d' ' -f1   => Split by spaces and pick the first part
-  # rev             => Reverse the string back
+  # Fetch out the number of rows with the desired keyword
   NUM_ROWS=$(echo $OUTPUT_LOG_LINE | wc -l)
   echo "number of rows: $NUM_ROWS"
   if [ "${NUM_ROWS}" == 0 ]; then
@@ -309,7 +285,6 @@ cleanup_user_failure_in_pod() {
   cleanup_user_failure
 }
 
-# set -x
 
 echo -e "##################################"
 echo -e "SETUP TEST POD"
@@ -332,5 +307,3 @@ teardown_test_pod
 echo -e "##################################"
 echo -e "END OF THE TEST"
 echo -e "##################################"
-
-# set +x
