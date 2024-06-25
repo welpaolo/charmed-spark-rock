@@ -286,13 +286,13 @@ run_test_gpu_example_in_pod(){
 
   # Filter out the output log line
   OUTPUT_LOG_LINE=$(kubectl logs ${DRIVER_POD_ID} -n ${NAMESPACE} | grep 'GpuFilter' )
-
+  echo "output log line: $OUTPUT_LOG_LINE"
   # Fetch out the number of rows inserted
   # rev             => Reverse the string
   # cut -d' ' -f1   => Split by spaces and pick the first part
   # rev             => Reverse the string back
-  NUM_ROWS=$(wc -l  $OUTPUT_LOG_LINE)
-
+  NUM_ROWS=$(cat $OUTPUT_LOG_LINE | wc -l)
+  echo "number of rows: $NUM_ROWS"
   if [ "${NUM_ROWS}" == 0 ]; then
       echo "ERROR: No GPU enable workflow found. Aborting with exit code 1."
       exit 1
