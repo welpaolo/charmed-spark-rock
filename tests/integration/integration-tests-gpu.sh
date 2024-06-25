@@ -138,27 +138,17 @@ setup_admin_test_pod() {
   kubectl create ns $NAMESPACE
 
   echo "Creating admin test-pod"
-  pwd
-  ls
-  ls ./tests/
-  ls ./tests/integration/
-  ls ./tests/integration/resources/
-  echo "END of debug"
-  # cat ./tests/integration/resources/testpod.yaml
-  echo "pippo"
   
   cat ./tests/integration/resources/testpod.yaml | yq ea '.spec.containers[0].env[0].name = "KUBECONFIG" | .spec.containers[0].env[0].value = "/var/lib/spark/.kube/config" | .metadata.name = "testpod-admin" | .spec.containers[0].image="ghcr.io/welpaolo/charmed-spark@sha256:d8273bd904bb5f74234bc0756d520115b5668e2ac4f2b65a677bfb1c27e882da"' 
-  # cat ./tests/integration/resources/testpod.yaml | yq ea '.spec.containers[0].env[0].name = "KUBECONFIG" | .spec.containers[0].env[0].value = "/var/lib/spark/.kube/config" | .metadata.name = "testpod-admin"' 
-  # yq ea '.spec.containers[0].env[0].name = "KUBECONFIG" | .spec.containers[0].env[0].value = "/var/lib/spark/.kube/config" | .metadata.name = "testpod-admin"' \
-    # ./tests/integration/resources/testpod.yaml
-  # Create a pod with admin service account
   cat ./tests/integration/resources/testpod.yaml | yq ea '.spec.containers[0].env[0].name = "KUBECONFIG" | .spec.containers[0].env[0].value = "/var/lib/spark/.kube/config" | .metadata.name = "testpod-admin" | .spec.containers[0].image="ghcr.io/welpaolo/charmed-spark@sha256:d8273bd904bb5f74234bc0756d520115b5668e2ac4f2b65a677bfb1c27e882da"' | \
     kubectl -n tests apply -f -
 
   wait_for_pod testpod-admin $NAMESPACE
-
+  sleep 60
   MY_KUBE_CONFIG=$(cat /home/${USER}/.kube/config)
-
+  echo "MY_KUBE_CONFIG"
+  echo "$MY_KUBE_CONFIG"
+  echo "END"
   kubectl -n $NAMESPACE exec testpod-admin -- /bin/bash -c 'mkdir -p ~/.kube'
   kubectl -n $NAMESPACE exec testpod-admin -- env KCONFIG="$MY_KUBE_CONFIG" /bin/bash -c 'echo "$KCONFIG" > ~/.kube/config'
 }
