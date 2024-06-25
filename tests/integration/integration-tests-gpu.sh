@@ -252,7 +252,7 @@ run_test_gpu_example_in_pod(){
         --conf spark.executor.resource.gpu.vendor=nvidia.com \
         --conf spark.kubernetes.container.image=ghcr.io/welpaolo/charmed-spark@sha256:d8273bd904bb5f74234bc0756d520115b5668e2ac4f2b65a677bfb1c27e882da \
         --driver-memory 2G \
-        --conf spark.kubernetes.executor.podTemplateFile=gpu_executor_template.yaml \
+        --conf spark.kubernetes.executor.podTemplateFile=./tests/integration/resources/gpu_executor_template.yaml \
         --conf spark.kubernetes.executor.deleteOnTermination=false \
           s3a://spark/test-gpu-simple.py'
 
