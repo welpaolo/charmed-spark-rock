@@ -64,9 +64,11 @@ setup_user() {
   wait_for_pod testpod $NAMESPACE
 
   TEST_POD_TEMPLATE=$(cat tests/integration/resources/podTemplate.yaml)
+  TEST_GPU_TEMPLATE=$(cat tests/integration/resources/gpu_executor_template.yaml)
 
   kubectl -n $NAMESPACE exec testpod -- /bin/bash -c 'cp -r /opt/spark/python /var/lib/spark/'
   kubectl -n $NAMESPACE exec testpod -- env PTEMPLATE="$TEST_POD_TEMPLATE" /bin/bash -c 'echo "$PTEMPLATE" > /etc/spark/conf/podTemplate.yaml'
+  kubectl -n $NAMESPACE exec testpod -- env PTEMPLATE="$TEST_GPU_TEMPLATE" /bin/bash -c 'echo "$PTEMPLATE" > /etc/spark/conf/gpu_executor_template.yaml'
 }
 
 setup_user_context() {
@@ -252,7 +254,7 @@ run_test_gpu_example_in_pod(){
         --conf spark.executor.resource.gpu.vendor=nvidia.com \
         --conf spark.kubernetes.container.image=ghcr.io/welpaolo/charmed-spark@sha256:d8273bd904bb5f74234bc0756d520115b5668e2ac4f2b65a677bfb1c27e882da \
         --driver-memory 2G \
-        --conf spark.kubernetes.executor.podTemplateFile=./tests/integration/resources/gpu_executor_template.yaml \
+        --conf spark.kubernetes.executor.podTemplateFile=/etc/spark/conf/gpu_executor_template.yaml \
         --conf spark.kubernetes.executor.deleteOnTermination=false \
           s3a://spark/test-gpu-simple.py'
 
