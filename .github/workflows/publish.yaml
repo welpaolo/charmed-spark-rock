@@ -52,7 +52,7 @@ jobs:
   #     secrets: inherit
 
   publish:
-    needs: [tests, release_checks, tests-gpu]
+    needs: [tests, release_checks]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
