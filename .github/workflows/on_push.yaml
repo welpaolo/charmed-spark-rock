@@ -2,7 +2,8 @@ on:
   push:
     branches:
       - '3.4-22.04/*'
-      - dpe-5053
+  pull_request:
+
 
 jobs:
   publish:
