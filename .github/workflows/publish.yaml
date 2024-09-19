@@ -93,8 +93,8 @@ jobs:
           mv charmed-spark/${{ steps.artifact.outputs.base_artifact_name }} .
           
           REPOSITORY="ghcr.io/welpaolo/"
-          RISK="3.4"
-          TRACK="edge"
+          RISK="edge"
+          TRACK="3.4"
           if [ ! -z "$RISK" ] && [ "${RISK}" != "no-risk" ]; then TAG=${TRACK}_${RISK}; else TAG=${TRACK}; fi
 
           IMAGE_NAME=$(make help REPOSITORY=${REPOSITORY} TAG=${TAG} help | grep "Image\:" | cut -d ":" -f2  | xargs)
@@ -127,8 +127,8 @@ jobs:
           mv charmed-spark/${{ steps.artifact.outputs.jupyter_artifact_name }} .
 
           REPOSITORY="ghcr.io/welpaolo/"
-          RISK="3.4"
-          TRACK="edge"
+          RISK="edge"
+          TRACK="3.4"
           if [ ! -z "$RISK" ] && [ "${RISK}" != "no-risk" ]; then TAG=${TRACK}_${RISK}; else TAG=${TRACK}; fi
       
           # Import artifact into docker with new tag
@@ -165,8 +165,8 @@ jobs:
           rmdir charmed-spark
 
           REPOSITORY="ghcr.io/welpaolo/"
-          RISK="3.4"
-          TRACK="edge"
+          RISK="edge"
+          TRACK="3.4"
           if [ ! -z "$RISK" ] && [ "${RISK}" != "no-risk" ]; then TAG=${TRACK}_${RISK}; else TAG=${TRACK}; fi
       
           # Import artifact into docker with new tag
