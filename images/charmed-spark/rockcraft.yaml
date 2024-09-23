@@ -174,6 +174,7 @@ parts:
     source: .
     organize:
       conf/spark-defaults.conf: etc/spark8t/conf/spark-defaults.conf
+      conf/jmx_prometheus.yaml: etc/spark/conf/jmx_prometheus.yaml
       bin/sparkd.sh: opt/pebble/sparkd.sh
       bin/history-server.sh: opt/pebble/history-server.sh
       bin/spark-client.pyspark: opt/spark-client/python/bin/spark-client.pyspark
@@ -183,6 +184,7 @@ parts:
       bin/spark-client.spark-submit: opt/spark-client/python/bin/spark-client.spark-submit
     stage:
       - etc/spark8t/conf/
+      - etc/spark/conf/
       - opt/pebble/sparkd.sh
       - opt/pebble/history-server.sh
       - opt/spark-client/python/bin/spark-client.pyspark
