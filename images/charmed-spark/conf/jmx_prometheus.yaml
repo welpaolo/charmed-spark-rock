@@ -2,7 +2,7 @@
 ---   
 lowercaseOutputLabelNames: true
 lowercaseOutputName: true
-whitelistObjectNames: ["java.lang:type=OperatingSystem", "Catalina:*"]
+whitelistObjectNames: ["Catalina:*"]
 blacklistObjectNames: []
 rules:
   - pattern: 'Catalina<type=Server><>serverInfo: (.+)'
