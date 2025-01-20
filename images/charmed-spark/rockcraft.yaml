@@ -108,7 +108,6 @@ parts:
 
       JARS=(
       "https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runtime-${ICEBERG_SPARK_RUNTIME_VERSION}/LIB_VERSION/iceberg-spark-runtime-${ICEBERG_SPARK_RUNTIME_VERSION}-LIB_VERSION.jar $ICEBERG_VERSION sha1sum $SHA1SUM_ICEBERG_JAR"
-      "https://github.com/canonical/central-uploader/releases/download/spark-metrics-assembly-LIB_VERSION/spark-metrics-assembly-LIB_VERSION.jar $SPARK_METRICS_VERSION sha512sum $SHA512SUM_SPARK_METRICS_ASSEMBLY_JAR"
       "https://github.com/canonical/central-uploader/releases/download/servlet-filters-LIB_VERSION/servlet-filters-LIB_VERSION.jar $SERVLET_FILTERS_VERSION sha512sum $SHA512SUM_SPARK_SERVLET_FILTER_JAR"
       "https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/LIB_VERSION/jmx_prometheus_javaagent-LIB_VERSION.jar $PROMETHEUS_JMX_EXPORTER_VERSION sha1sum $SHA1SUM_PROMETHEUS_JMX_EXPORTER"
       )
@@ -183,6 +182,7 @@ parts:
       bin/spark-client.spark-shell: opt/spark-client/python/bin/spark-client.spark-shell
       bin/spark-client.spark-submit: opt/spark-client/python/bin/spark-client.spark-submit
       pebble/log-layer.yaml: opt/pebble/log-layer.yaml
+      bin/spark-metrics-assembly-3.4-1.0.3.jar: opt/spark/jars/spark-metrics-assembly-3.4-1.0.3.jar
     stage:
       - etc/spark8t/conf/
       - etc/spark/conf/
