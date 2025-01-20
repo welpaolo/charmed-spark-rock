@@ -194,6 +194,7 @@ parts:
       - opt/spark-client/python/bin/spark-client.spark-shell
       - opt/spark-client/python/bin/spark-client.spark-submit
       - opt/pebble/log-layer.yaml
+      - opt/spark/jars/spark-metrics-assembly-3.4-1.0.3.jar
 
   user-setup:
     plugin: nil
