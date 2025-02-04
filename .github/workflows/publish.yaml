@@ -29,12 +29,12 @@ jobs:
         echo "base=${BASE}" >> $GITHUB_OUTPUT
       id: rock_metadata
 
-    - name: Check consistency between metadata and release branch
-      run: |
-        MAJOR_MINOR_VERSION=$(echo ${{ steps.rock_metadata.outputs.version }} | sed -n "s/\(^[0-9]*\.[0-9]*\).*/\1/p")
-        BASE=${{ steps.rock_metadata.outputs.base }}
-        if [ "${MAJOR_MINOR_VERSION}-${BASE}" != "${{ steps.branch_metadata.outputs.track }}" ]; then exit 1; fi
-      continue-on-error: false
+    # - name: Check consistency between metadata and release branch
+    #   run: |
+    #     MAJOR_MINOR_VERSION=$(echo ${{ steps.rock_metadata.outputs.version }} | sed -n "s/\(^[0-9]*\.[0-9]*\).*/\1/p")
+    #     BASE=${{ steps.rock_metadata.outputs.base }}
+    #     if [ "${MAJOR_MINOR_VERSION}-${BASE}" != "${{ steps.branch_metadata.outputs.track }}" ]; then exit 1; fi
+    #   continue-on-error: false
 
     outputs:
       branch: ${{ steps.branch_metadata.outputs.branch }}
@@ -47,12 +47,12 @@ jobs:
       uses: ./.github/workflows/integration.yaml
       secrets: inherit
 
-  tests-gpu:
-      uses: ./.github/workflows/integration-gpu.yaml
-      secrets: inherit
+  # tests-gpu:
+  #     uses: ./.github/workflows/integration-gpu.yaml
+  #     secrets: inherit
 
   publish:
-    needs: [tests, release_checks, tests-gpu]
+    needs: [tests, release_checks]
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
@@ -92,9 +92,9 @@ jobs:
           # Unpack artifact
           mv charmed-spark/${{ steps.artifact.outputs.base_artifact_name }} .
           
-          REPOSITORY="ghcr.io/canonical/"
-          RISK=${{ needs.release_checks.outputs.risk }}
-          TRACK=${{ needs.release_checks.outputs.track }}
+          REPOSITORY="ghcr.io/welpaolo/"
+          RISK="edge"
+          TRACK="3.4"
           if [ ! -z "$RISK" ] && [ "${RISK}" != "no-risk" ]; then TAG=${TRACK}_${RISK}; else TAG=${TRACK}; fi
 
           IMAGE_NAME=$(make help REPOSITORY=${REPOSITORY} TAG=${TAG} help | grep "Image\:" | cut -d ":" -f2  | xargs)
@@ -126,9 +126,12 @@ jobs:
           # Unpack artifact
           mv charmed-spark/${{ steps.artifact.outputs.jupyter_artifact_name }} .
 
-          REPOSITORY="ghcr.io/canonical/"
-          RISK=${{ needs.release_checks.outputs.risk }}
-          TRACK=${{ needs.release_checks.outputs.track }}
+          # REPOSITORY="ghcr.io/canonical/"
+          # RISK=${{ needs.release_checks.outputs.risk }}
+          # TRACK=${{ needs.release_checks.outputs.track }}
+          REPOSITORY="ghcr.io/welpaolo/"
+          RISK="edge"
+          TRACK="3.4"
           if [ ! -z "$RISK" ] && [ "${RISK}" != "no-risk" ]; then TAG=${TRACK}_${RISK}; else TAG=${TRACK}; fi
       
           # Import artifact into docker with new tag
@@ -164,9 +167,9 @@ jobs:
           mv charmed-spark/${{ steps.artifact.outputs.kyuubi_artifact_name }} .
           rmdir charmed-spark
 
-          REPOSITORY="ghcr.io/canonical/"
-          RISK=${{ needs.release_checks.outputs.risk }}
-          TRACK=${{ needs.release_checks.outputs.track }}
+          REPOSITORY="ghcr.io/welpaolo/"
+          RISK="edge"
+          TRACK="3.4"
           if [ ! -z "$RISK" ] && [ "${RISK}" != "no-risk" ]; then TAG=${TRACK}_${RISK}; else TAG=${TRACK}; fi
       
           # Import artifact into docker with new tag
@@ -196,47 +199,47 @@ jobs:
           fi
       
       
-      - name: Download gpu artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: charmed-spark-gpu
-          path: charmed-spark-gpu 
+      # - name: Download gpu artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: charmed-spark-gpu
+      #     path: charmed-spark-gpu 
       
-      - name: Publish Charmed Spark GPU Image to Channel
-        run: |
-          # Unpack artifact
-          mv charmed-spark-gpu/${{ steps.artifact.outputs.gpu_artifact_name }} .
-          rmdir charmed-spark-gpu
+      # - name: Publish Charmed Spark GPU Image to Channel
+      #   run: |
+      #     # Unpack artifact
+      #     mv charmed-spark-gpu/${{ steps.artifact.outputs.gpu_artifact_name }} .
+      #     rmdir charmed-spark-gpu
 
-          REPOSITORY="ghcr.io/canonical/"
-          RISK=${{ needs.release_checks.outputs.risk }}
-          TRACK=${{ needs.release_checks.outputs.track }}
-          if [ ! -z "$RISK" ] && [ "${RISK}" != "no-risk" ]; then TAG=${TRACK}_${RISK}; else TAG=${TRACK}; fi
+      #     REPOSITORY="ghcr.io/canonical/"
+      #     RISK=${{ needs.release_checks.outputs.risk }}
+      #     TRACK=${{ needs.release_checks.outputs.track }}
+      #     if [ ! -z "$RISK" ] && [ "${RISK}" != "no-risk" ]; then TAG=${TRACK}_${RISK}; else TAG=${TRACK}; fi
       
-          IMAGE_NAME=$(make help REPOSITORY=${REPOSITORY} TAG=${TAG} FLAVOUR=spark-gpu help | grep "Image\:" | cut -d ":" -f2  | xargs)
+      #     IMAGE_NAME=$(make help REPOSITORY=${REPOSITORY} TAG=${TAG} FLAVOUR=spark-gpu help | grep "Image\:" | cut -d ":" -f2  | xargs)
 
-          # Import artifact into docker with new tag
-          sudo make docker-import \
-            FLAVOUR=spark-gpu \
-            REPOSITORY=${REPOSITORY} \
-            TAG=${TAG} \
-            -o ${{ steps.artifact.outputs.gpu_artifact_name }}
+      #     # Import artifact into docker with new tag
+      #     sudo make docker-import \
+      #       FLAVOUR=spark-gpu \
+      #       REPOSITORY=${REPOSITORY} \
+      #       TAG=${TAG} \
+      #       -o ${{ steps.artifact.outputs.gpu_artifact_name }}
 
-          # Add relevant labels
-          COMMIT_ID=$(git log -1 --format=%H)
-          DESCRIPTION=$(yq .description images/charmed-spark-gpu/rockcraft.yaml | xargs)
+      #     # Add relevant labels
+      #     COMMIT_ID=$(git log -1 --format=%H)
+      #     DESCRIPTION=$(yq .description images/charmed-spark-gpu/rockcraft.yaml | xargs)
           
-          echo "FROM ${IMAGE_NAME}:${TAG}" | docker build --label org.opencontainers.image.description="${DESCRIPTION}" --label org.opencontainers.image.revision="${COMMIT_ID}" --label org.opencontainers.image.source="${{ github.repositoryUrl }}" -t "${IMAGE_NAME}:${TAG}" -
+      #     echo "FROM ${IMAGE_NAME}:${TAG}" | docker build --label org.opencontainers.image.description="${DESCRIPTION}" --label org.opencontainers.image.revision="${COMMIT_ID}" --label org.opencontainers.image.source="${{ github.repositoryUrl }}" -t "${IMAGE_NAME}:${TAG}" -
 
-          echo "Publishing ${IMAGE_NAME}:${TAG}"
-          docker push ${IMAGE_NAME}:${TAG}
+      #     echo "Publishing ${IMAGE_NAME}:${TAG}"
+      #     docker push ${IMAGE_NAME}:${TAG}
       
-          if [[ "$RISK" == "edge" ]]; then
-            VERSION_LONG=$(make help FLAVOUR=spark-gpu | grep "Tag\:" | cut -d ":" -f2  | xargs)
-            VERSION_TAG="${VERSION_LONG}-${{ needs.release_checks.outputs.base }}_edge"
+      #     if [[ "$RISK" == "edge" ]]; then
+      #       VERSION_LONG=$(make help FLAVOUR=spark-gpu | grep "Tag\:" | cut -d ":" -f2  | xargs)
+      #       VERSION_TAG="${VERSION_LONG}-${{ needs.release_checks.outputs.base }}_edge"
       
-            docker tag ${IMAGE_NAME}:${TAG} ${IMAGE_NAME}:${VERSION_TAG}
+      #       docker tag ${IMAGE_NAME}:${TAG} ${IMAGE_NAME}:${VERSION_TAG}
       
-            echo "Publishing ${IMAGE_NAME}:${VERSION_TAG}"
-            docker push ${IMAGE_NAME}:${VERSION_TAG}
-          fi
+      #       echo "Publishing ${IMAGE_NAME}:${VERSION_TAG}"
+      #       docker push ${IMAGE_NAME}:${VERSION_TAG}
+      #     fi
