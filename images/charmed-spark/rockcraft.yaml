@@ -98,17 +98,18 @@ parts:
 
       ICEBERG_SPARK_RUNTIME_VERSION='3.4_2.12'
       ICEBERG_VERSION='1.7.1'
-      SPARK_METRICS_VERSION='3.4-1.0.2'
+      SPARK_METRICS_VERSION='3.4-1.0.4'
       SERVLET_FILTERS_VERSION='0.0.1'
       PROMETHEUS_JMX_EXPORTER_VERSION='0.15.0'
       SHA1SUM_ICEBERG_JAR='f758c82f27b025dac9b00e6520f2d64b1a313c7e'
-      SHA512SUM_SPARK_METRICS_ASSEMBLY_JAR='9be728c3bda6a8e9db77452f416bc23245271a5db2da64557429352917c0772801ead19f3b1a33f955ec2eced3cb952c6c3a7c617cdeb4389cd17284f3c711f7'
+      SHA512SUM_SPARK_METRICS_ASSEMBLY_JAR='e3cc83f38f2924f99203fe2f39ab54c5d483ed627b78e9cd8d2a8813ce862047acbbb75bad3a73f56c16c685822b66488cc18d29ed27261b3a961bd9e411ca83'
       SHA512SUM_SPARK_SERVLET_FILTER_JAR='ffeb809d58ef0151d513b09d4c2bfd5cc064b0b888ca45899687aed2f42bcb1ce9834be9709290dd70bd9df84049f02cbbff6c2d5ec3c136c278c93f167c8096'
       SHA1SUM_PROMETHEUS_JMX_EXPORTER='a1061f29088ac2709da076a97736de575a872538'
 
       JARS=(
       "https://repo1.maven.org/maven2/org/apache/iceberg/iceberg-spark-runtime-${ICEBERG_SPARK_RUNTIME_VERSION}/LIB_VERSION/iceberg-spark-runtime-${ICEBERG_SPARK_RUNTIME_VERSION}-LIB_VERSION.jar $ICEBERG_VERSION sha1sum $SHA1SUM_ICEBERG_JAR"
       "https://github.com/canonical/central-uploader/releases/download/servlet-filters-LIB_VERSION/servlet-filters-LIB_VERSION.jar $SERVLET_FILTERS_VERSION sha512sum $SHA512SUM_SPARK_SERVLET_FILTER_JAR"
+      "https://github.com/canonical/central-uploader/releases/download/spark-metrics-assembly-LIB_VERSION/spark-metrics-assembly-LIB_VERSION.jar $SPARK_METRICS_VERSION sha512sum $SHA512SUM_SPARK_METRICS_ASSEMBLY_JAR"
       "https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/LIB_VERSION/jmx_prometheus_javaagent-LIB_VERSION.jar $PROMETHEUS_JMX_EXPORTER_VERSION sha1sum $SHA1SUM_PROMETHEUS_JMX_EXPORTER"
       )
       for ENTRY in "${JARS[@]}"; do
@@ -182,7 +183,6 @@ parts:
       bin/spark-client.spark-shell: opt/spark-client/python/bin/spark-client.spark-shell
       bin/spark-client.spark-submit: opt/spark-client/python/bin/spark-client.spark-submit
       pebble/log-layer.yaml: opt/pebble/log-layer.yaml
-      bin/spark-metrics-assembly-3.4-1.0.3.jar: opt/spark/jars/spark-metrics-assembly-3.4-1.0.3.jar
     stage:
       - etc/spark8t/conf/
       - etc/spark/conf/
@@ -194,7 +194,6 @@ parts:
       - opt/spark-client/python/bin/spark-client.spark-shell
       - opt/spark-client/python/bin/spark-client.spark-submit
       - opt/pebble/log-layer.yaml
-      - opt/spark/jars/spark-metrics-assembly-3.4-1.0.3.jar
 
   user-setup:
     plugin: nil
