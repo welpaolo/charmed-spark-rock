@@ -102,7 +102,7 @@ parts:
       ICEBERG_SPARK_RUNTIME_VERSION='3.5_2.12'
       # renovate: datasource=maven depName=org.apache.iceberg:iceberg-spark-runtime-3.5_2.12
       ICEBERG_VERSION='1.10.1'
-      # renovate: datasource=github-releases depName=canonical/central-uploader extractVersion=^spark-metrics-assembly-(?<version>.+)$
+      # renovate: datasource=github-releases depName=canonical/central-uploader extractVersion=^spark-metrics-assembly-3.4(?<version>.+)$
       SPARK_METRICS_VERSION='3.4-1.0.5'
       # renovate: datasource=github-releases depName=canonical/central-uploader extractVersion=^servlet-filters-(?<version>.+)$
       SERVLET_FILTERS_VERSION='0.0.1'
