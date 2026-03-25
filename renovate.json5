@@ -20,6 +20,37 @@
       "matchStrings": [
         "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s*depName=(?<depName>[^\\s]+)\\n\\s+source:\\s*.*?/(?<currentValue>[^/\\s]+)/[^/\\s]+\\.jar"
       ]
+    },
+    {
+      // Matches shell version variables annotated with:
+      //   # renovate: datasource=<ds> depName=<name>
+      // Used for Maven JARs in rockcraft.yaml overlay-scripts
+      "customType": "regex",
+      "fileMatch": ["rockcraft\\.yaml$"],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s\\n]+)\\n\\s+\\w+_VERSION='(?<currentValue>[^']+)'"
+      ]
+    },
+    {
+      // Matches shell version variables annotated with:
+      //   # renovate: datasource=<ds> depName=<name> extractVersion=<pattern>
+      // Used for GitHub Releases JARs (e.g. canonical/central-uploader) in rockcraft.yaml
+      "customType": "regex",
+      "fileMatch": ["rockcraft\\.yaml$"],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)\\s+extractVersion=(?<extractVersion>[^\\n]+)\\n\\s+\\w+_VERSION='(?<currentValue>[^']+)'"
+      ]
+    },
+    {
+      // Matches pip install lines annotated with:
+      //   # renovate: datasource=pypi
+      // Used for Python packages in rockcraft.yaml overlay-scripts
+      "customType": "regex",
+      "fileMatch": ["rockcraft\\.yaml$"],
+      "matchStrings": [
+        "#\\s*renovate:\\s*datasource=pypi\\n\\s+pip install[^\\n]+ (?<depName>[^=\\s]+)==(?<currentValue>[^\\s\\n]+)"
+      ],
+      "datasourceTemplate": "pypi"
     }
   ]
 }
