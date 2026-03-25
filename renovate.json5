@@ -28,7 +28,7 @@
       "customType": "regex",
       "fileMatch": ["rockcraft\\.yaml$"],
       "matchStrings": [
-        "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s\\n]+)\\n\\s+\\w+_VERSION='(?<currentValue>[^']+)'"
+        "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s\\n]+)\\n\\s+(?<depType>\\w+_VERSION)='(?<currentValue>[^']+)'"
       ]
     },
     {
@@ -38,7 +38,7 @@
       "customType": "regex",
       "fileMatch": ["rockcraft\\.yaml$"],
       "matchStrings": [
-        "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)\\s+extractVersion=(?<extractVersion>[^\\n]+)\\n\\s+\\w+_VERSION='(?<currentValue>[^']+)'"
+        "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)\\s+extractVersion=(?<extractVersion>[^\\n]+)\\n\\s+(?<depType>\\w+_VERSION)='(?<currentValue>[^']+)'"
       ]
     },
     {
@@ -51,6 +51,21 @@
         "#\\s*renovate:\\s*datasource=pypi\\n\\s+pip install[^\\n]+ (?<depName>[^=\\s]+)==(?<currentValue>[^\\s\\n]+)"
       ],
       "datasourceTemplate": "pypi"
+    }
+  ],
+  "packageRules": [
+    {
+      // Only allow minor and patch updates for jmx_prometheus_javaagent
+      "matchDepNames": ["io.prometheus.jmx:jmx_prometheus_javaagent"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
+      // Only allow minor and patch updates for servlet-filters
+      // depType is captured from the shell variable name in customManagers
+      "matchDepTypes": ["SERVLET_FILTERS_VERSION"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
     }
   ]
 }
