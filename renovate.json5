@@ -61,6 +61,12 @@
       "enabled": false
     },
     {
+      // Only allow minor and patch updates for jmx_prometheus_javaagent
+      "matchDepNames": ["io.prometheus.jmx:jmx_prometheus_javaagent"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "enabled": true
+    },
+    {
       // Only allow minor and patch updates for servlet-filters
       // depType is captured from the shell variable name in customManagers
       "matchDepTypes": ["SERVLET_FILTERS_VERSION"],
