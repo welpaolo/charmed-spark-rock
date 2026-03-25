@@ -104,9 +104,9 @@ parts:
       ICEBERG_VERSION='1.10.1'
       # renovate: datasource=github-releases depName=canonical/central-uploader extractVersion=^spark-metrics-assembly-3.4(?<version>.+)$
       SPARK_METRICS_VERSION='3.4-1.0.5'
-      # renovate: datasource=github-releases depName=canonical/central-uploader extractVersion=^servlet-filters-(?<version>.+)$
+      # renovate: datasource=github-releases depName=canonical/central-uploader extractVersion=^servlet-filters-0.(?<version>.+)$
       SERVLET_FILTERS_VERSION='0.0.1'
-      # renovate: datasource=maven depName=io.prometheus.jmx:jmx_prometheus_javaagent
+      # renovate: datasource=maven depName=io.prometheus.jmx:jmx_prometheus_javaagent-0
       PROMETHEUS_JMX_EXPORTER_VERSION='0.20.0'
       # renovate: datasource=maven depName=org.postgresql:postgresql
       POSTGRESQL_VERSION='42.7.10'
