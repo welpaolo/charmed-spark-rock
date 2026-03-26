@@ -72,6 +72,13 @@
       "matchDepTypes": ["SERVLET_FILTERS_VERSION"],
       "matchUpdateTypes": ["major"],
       "enabled": false
+    },
+    {
+      // Only allow minor and patch updates for servlet-filters
+      // depType is captured from the shell variable name in customManagers
+      "matchDepTypes": ["SERVLET_FILTERS_VERSION"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "enabled": true
     }
   ]
 }
