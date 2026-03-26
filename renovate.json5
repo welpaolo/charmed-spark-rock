@@ -54,29 +54,43 @@
     }
   ],
   "packageRules": [
-    {
-       // Only allow minor and patch updates for jmx_prometheus_javaagent
-       "matchDepNames": ["io.prometheus.jmx:jmx_prometheus_javaagent"],
-       "matchUpdateTypes": ["major"],
-       "enabled": false
-    },
+    // {
+    //    // Only allow minor and patch updates for jmx_prometheus_javaagent
+    //    "matchDepNames": ["io.prometheus.jmx:jmx_prometheus_javaagent"],
+    //    "matchUpdateTypes": ["major"],
+    //    "enabled": false
+    // },
     {
       // Only allow minor and patch updates for jmx_prometheus_javaagent
       "matchDepNames": ["io.prometheus.jmx:jmx_prometheus_javaagent"],
       "matchUpdateTypes": ["minor", "patch"],
       "enabled": true
     },
+    // {
+    //   // Only allow minor and patch updates for servlet-filters
+    //   // depType is captured from the shell variable name in customManagers
+    //   "matchDepTypes": ["SERVLET_FILTERS_VERSION"],
+    //   "matchUpdateTypes": ["major"],
+    //   "enabled": false
+    // },
     {
       // Only allow minor and patch updates for servlet-filters
       // depType is captured from the shell variable name in customManagers
       "matchDepTypes": ["SERVLET_FILTERS_VERSION"],
-      "matchUpdateTypes": ["major"],
-      "enabled": false
+      "matchUpdateTypes": ["minor", "patch"],
+      "enabled": true
     },
+    // {
+    //   // Only allow minor and patch updates for spark-metrics-assembly
+    //   // depType is captured from the shell variable name in customManagers
+    //   "matchDepTypes": ["SPARK_METRICS_VERSION"],
+    //   "matchUpdateTypes": ["major"],
+    //   "enabled": false
+    // },
     {
-      // Only allow minor and patch updates for servlet-filters
+      // Only allow minor and patch updates for spark-metrics-assembly
       // depType is captured from the shell variable name in customManagers
-      "matchDepTypes": ["SERVLET_FILTERS_VERSION"],
+      "matchDepTypes": ["SPARK_METRICS_VERSION"],
       "matchUpdateTypes": ["minor", "patch"],
       "enabled": true
     }
