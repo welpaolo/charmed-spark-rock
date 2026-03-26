@@ -66,31 +66,37 @@
       "matchUpdateTypes": ["minor", "patch"],
       "enabled": true
     },
-    // {
-    //   // Only allow minor and patch updates for servlet-filters
-    //   // depType is captured from the shell variable name in customManagers
-    //   "matchDepTypes": ["SERVLET_FILTERS_VERSION"],
-    //   "matchUpdateTypes": ["major"],
-    //   "enabled": false
-    // },
     {
       // Only allow minor and patch updates for servlet-filters
       // depType is captured from the shell variable name in customManagers
-      "matchDepTypes": ["SERVLET_FILTERS_VERSION"],
+      // "canonical/central-uploader" 
+      "matchDatasources": ["github-releases"],
+      "matchDepNames": ["canonical/central-uploader"],
+      // "matchDepTypes": ["SERVLET_FILTERS_VERSION"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
+      // Only allow minor and patch updates for servlet-filters
+      // depType is captured from the shell variable name in customManagers
+      "matchDatasources": ["github-releases"],
+      "matchDepNames": ["canonical/central-uploader"],
       "matchUpdateTypes": ["minor", "patch"],
       "enabled": true
     },
-    // {
-    //   // Only allow minor and patch updates for spark-metrics-assembly
-    //   // depType is captured from the shell variable name in customManagers
-    //   "matchDepTypes": ["SPARK_METRICS_VERSION"],
-    //   "matchUpdateTypes": ["major"],
-    //   "enabled": false
-    // },
     {
       // Only allow minor and patch updates for spark-metrics-assembly
       // depType is captured from the shell variable name in customManagers
-      "matchDepTypes": ["SPARK_METRICS_VERSION"],
+      "matchDatasources": ["github-releases"],
+      "matchDepNames": ["canonical/central-uploader"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
+      // Only allow minor and patch updates for spark-metrics-assembly
+      // depType is captured from the shell variable name in customManagers
+      "matchDatasources": ["github-releases"],
+      "matchDepNames": ["canonical/central-uploader"],
       "matchUpdateTypes": ["minor", "patch"],
       "enabled": true
     }
