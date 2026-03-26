@@ -53,17 +53,25 @@
       "datasourceTemplate": "pypi"
     },
     {
-      // Matches source tarball downloads from GitHub releases:
-      //   # renovate: datasource=github-releases depName=<repo> depType=<type>
-      //   source: https://github.com/.../releases/download/<package>-<version>/<file>
-      // Captures the packageVersion from the download URL
       "customType": "regex",
+      "description": "Update Spark tarball version in rockcraft.yaml",
       "fileMatch": ["rockcraft\\.yaml$"],
       "matchStrings": [
-        "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s+depName=(?<depName>[^\\s]+)\\s+depType=(?<depType>[^\\s\\n]+)\\n\\s+source:\\s*.*?/(?<currentValue>[^/]+)/[^/\\s]+\\.tgz"
-      ]
+        "source:\\s*https://github\\.com/(?<depName>canonical/central-uploader)/releases/download/(?<currentValue>spark-\\d+\\.\\d+\\.\\d+-ubuntu\\d+)/spark-\\d+\\.\\d+\\.\\d+-ubuntu\\d+-[0-9]+-bin-k8s\\.tgz"
+      ],
+      "datasourceTemplate": "github-releases"
     }
   ],
+  "postUpgradeTasks": {
+    "commands": [
+      "export ASSET_URL=$(curl -s https://api.github.com/repos/canonical/central-uploader/releases/tags/{{{newValue}}} | grep browser_download_url | grep -o 'https://[^\"]*bin-k8s\\.tgz')",
+      "sed -i -e \"s|https://github.com/canonical/central-uploader/releases/download/[^ ]*\\.tgz|$ASSET_URL|g\" {{{fileFilters}}}"
+    ],
+    "fileFilters": [
+      "**/rockcraft.yaml"
+    ],
+    "executionMode": "branch"
+  },
   "packageRules": [
     {
        // Only allow minor and patch updates for jmx_prometheus_javaagent
@@ -94,12 +102,6 @@
       "matchDepNames": ["canonical/central-uploader"],
       "matchUpdateTypes": ["minor", "patch"],
       "enabled": true
-    },
-    {
-      // Only allow patch updates for spark tarball source
-      "matchDepTypes": ["spark-source"],
-      "matchUpdateTypes": ["major", "minor"],
-      "enabled": false
     }
   ]
 }
