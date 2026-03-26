@@ -14,13 +14,13 @@
     "/^3\\..*\\/edge$/",
   ],
   "customManagers": [
-    {
-      "customType": "regex",
-      "fileMatch": ["^rockcraft\\.yaml$"],
-      "matchStrings": [
-        "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s*depName=(?<depName>[^\\s]+)\\n\\s+source:\\s*.*?/(?<currentValue>[^/\\s]+)/[^/\\s]+\\.jar"
-      ]
-    },
+    // {
+    //   "customType": "regex",
+    //   "fileMatch": ["^rockcraft\\.yaml$"],
+    //   "matchStrings": [
+    //     "#\\s*renovate:\\s*datasource=(?<datasource>[^\\s]+)\\s*depName=(?<depName>[^\\s]+)\\n\\s+source:\\s*.*?/(?<currentValue>[^/\\s]+)/[^/\\s]+\\.jar"
+    //   ]
+    // },
     {
       // Matches shell version variables annotated with:
       //   # renovate: datasource=<ds> depName=<name>
